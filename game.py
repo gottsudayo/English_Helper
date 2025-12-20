@@ -98,6 +98,7 @@ class Game():
         self.res_bac_button.pack(pady=10)
 
   def wrongm(self):
+    self.stopsound()
     self.playbgm((self.currentdir + "gui/bgm/bgm.wav"))
     self.home_canvas.pack_forget()
     self.aq_canvas.pack()
@@ -155,7 +156,7 @@ class Game():
       self.res_label["text"] = "★復習完了★"
       self.res_label.pack(pady=10)
     
-    with open("self.wrong.json", "w", encoding="utf-8") as f:
+    with open((self.currentdir + "wrong.json"), "w", encoding="utf-8") as f:
         json.dump(self.wrong_wrong, f, ensure_ascii=False, indent=4)
     if len(self.wrong) > 0:
         self.home_wro_button["state"] = 'normal'
@@ -193,7 +194,7 @@ class Game():
 
     print("間違い直しデータ読み込み中...")
     try:
-        with open("wrong.json", "r", encoding="utf-8") as f:
+        with open((self.currentdir + "wrong.json"), "r", encoding="utf-8") as f:
             self.wrong = json.load(f)
     except FileNotFoundError:
         self.wrong = []
