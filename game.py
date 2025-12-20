@@ -22,7 +22,7 @@ class Game():
       self.aqnnum.delete(0, END)
       self.aqncanvas.pack_forget()
       self.home_canvas.pack(fill="both",expand=True)
-      self.playsound("gui/bgm/opening.wav")
+      self.playsound((self.currentdir + "gui/bgm/opening.wav"))
       return
     syn = False
     if len(self.wrong) > 0:
@@ -30,22 +30,22 @@ class Game():
     else:
         syn = True
     if syn:
-        self.playbgm("gui/bgm/bgm.wav")
+        self.playbgm((self.currentdir + "gui/bgm/bgm.wav"))
         self.wrong = []
         self.aqncanvas.pack_forget()
         self.aq_canvas.pack()
         collect = 0
-        self.playsound("gui/se/question.wav")
+        self.playsound((self.currentdir + "gui/se/question.wav"))
         for i in range(question_n):
           if i > 0:
             answer = self.aq_entry.get()
             if self.words[current_key] == answer:
-                self.playsound("gui/se/collect.wav")
+                self.playsound((self.currentdir + "gui/se/collect.wav"))
                 self.aq_res_label["text"] = "正解！！"
                 self.aq_res_label.update()
                 collect += 1
             else:
-                self.playsound("gui/se/wrong.wav")
+                self.playsound((self.currentdir + "gui/se/wrong.wav"))
                 self.aq_res_label["text"] = "不正解（正答：" + self.words[current_key] + "）"
                 self.aq_res_label.update()
                 self.wrong.append(self.keys_list[question_index])
@@ -60,10 +60,10 @@ class Game():
             self.stopsound()
             answer = self.aq_entry.get()
             if self.words[current_key] == answer:
-                self.playsound("gui/se/collect.wav")
+                self.playsound((self.currentdir + "gui/se/collect.wav"))
                 collect += 1
             else:
-                self.playsound("gui/se/wrong.wav")
+                self.playsound((self.currentdir + "gui/se/wrong.wav"))
                 self.wrong.append(self.keys_list[question_index])
         self.aq_canvas.pack_forget()
         self.res_canvas.pack()
@@ -98,23 +98,23 @@ class Game():
         self.res_bac_button.pack(pady=10)
 
   def wrongm(self):
-    self.playbgm("gui/bgm/bgm.wav")
+    self.playbgm((self.currentdir + "gui/bgm/bgm.wav"))
     self.home_canvas.pack_forget()
     self.aq_canvas.pack()
     self.wrong_wrong = []
     collect = 0
     question_n = len(self.wrong)
-    self.playsound("gui/se/question.wav")
+    self.playsound((self.currentdir + "gui/se/question.wav"))
     for i in range(question_n):
       if i > 0:
         answer = self.aq_entry.get()
         if self.words[current_key] == answer:
-            self.playsound("gui/se/collect.wav")
+            self.playsound((self.currentdir + "gui/se/collect.wav"))
             self.aq_res_label["text"] = "正解！！"
             self.aq_res_label.update()
             collect += 1
         else:
-            self.playsound("gui/se/wrong.wav")
+            self.playsound((self.currentdir + "gui/se/wrong.wav"))
             self.aq_res_label["text"] = "不正解（正答：" + self.words[current_key] + "）"
             self.aq_res_label.update()
             self.wrong_wrong.append(self.wrong[i])
@@ -127,12 +127,12 @@ class Game():
       if i == question_n - 1:
         answer = self.aq_entry.get()
         if self.words[current_key] == answer:
-            self.playsound("gui/se/collect.wav")
+            self.playsound((self.currentdir + "gui/se/collect.wav"))
             self.aq_res_label["text"] = "正解！！"
             self.aq_res_label.update()
             collect += 1
         else:
-            self.playsound("gui/se/wrong.wav")
+            self.playsound((self.currentdir + "gui/se/wrong.wav"))
             self.aq_res_label["text"] = "不正解（正答：" + self.words[current_key] + "）"
             self.aq_res_label.update()
             self.wrong_wrong.append(self.wrong[i])
@@ -164,6 +164,8 @@ class Game():
     self.res_bac_button.pack(pady=10)
     
   def __init__(self):
+    # self.currentdirは必要に応じてスクリプトフォルダの絶対パスに変更してください。
+    self.currentdir = ""
     print("システム準備中...")
     print("変数初期化中...")
     self.keys_list = []
@@ -176,7 +178,7 @@ class Game():
 
     print("単語データ読み込み中...")
     try:
-        with open("words.json", "r", encoding="utf-8") as f:
+        with open((self.currentdir + "words.json"), "r", encoding="utf-8") as f:
             self.words = json.load(f)
     except FileNotFoundError:
         messagebox.showerror("error","words.jsonが見つかりません。プログラムを終了します。")
@@ -195,7 +197,7 @@ class Game():
             self.wrong = json.load(f)
     except FileNotFoundError:
         self.wrong = []
-        with open("wrong.json", "w", encoding="utf-8") as f:
+        with open((self.currentdir + "wrong.json"), "w", encoding="utf-8") as f:
             json.dump(self.wrong, f, ensure_ascii=False, indent=4)
     except json.JSONDecodeError:
         messagebox.showerror("error","wrong.jsonの読み込み中にエラーが発生しました。プログラムを終了します。")
@@ -228,13 +230,13 @@ class Game():
     self.home_ans_button.pack(pady=10)
     self.home_wro_button.pack(pady=10)
     self.home_canvas.pack(fill="both",expand=True)
-    self.home_bg = PhotoImage(file="gui/bg/home_back.png")
+    self.home_bg = PhotoImage(file=(self.currentdir + "gui/bg/home_back.png"))
     self.home_canvas.create_image(0,0,image=self.home_bg)
 
     self.dic_canvas = Canvas(self.gui, width=400, height=400)
     self.dic_var = StringVar(self.dic_canvas,value=self.keys_list_dic)
     self.dic_list = Listbox(self.dic_canvas, font=("MS Gothic", 12),width=50,listvariable=self.dic_var)
-    self.dic_clo_button = Button(self.dic_canvas, text="閉じる", font=("MS Gothic", 15), command=lambda: [self.dic_canvas.pack_forget(), self.home_canvas.pack(fill="both",expand=True),self.playsound("gui/bgm/opening.wav")])
+    self.dic_clo_button = Button(self.dic_canvas, text="閉じる", font=("MS Gothic", 15), command=lambda: [self.dic_canvas.pack_forget(), self.home_canvas.pack(fill="both",expand=True),self.playsound((self.currentdir + "gui/bgm/opening.wav"))])
     self.dic_list.pack(pady=20)
     self.dic_clo_button.pack(pady=10)
 
@@ -244,7 +246,7 @@ class Game():
     self.aqnnum = Entry(self.aqncanvas, font=("MS Gothic", 15))
     self.aqnnum.bind("<KeyPress-Return>", lambda event: self.ansm())
     self.aqnenter = Button(self.aqncanvas, text="開始", font=("MS Gothic", 15),command=self.ansm)
-    self.aqncancel = Button(self.aqncanvas, text="キャンセル", font=("MS Gothic", 15), command=lambda: [self.aqncanvas.pack_forget(), self.home_canvas.pack(fill="both",expand=True),self.playsound("gui/bgm/opening.wav")])
+    self.aqncancel = Button(self.aqncanvas, text="キャンセル", font=("MS Gothic", 15), command=lambda: [self.aqncanvas.pack_forget(), self.home_canvas.pack(fill="both",expand=True),self.playsound((self.currentdir + "gui/bgm/opening.wav"))])
     self.aqnlabel.pack(pady=20)
     self.aqnnum.pack(pady=10)
     self.aqnenter.pack(pady=10)
@@ -268,10 +270,10 @@ class Game():
     self.res_label = Label(self.res_canvas, text="苦手な単語", font=("MS Gothic", 15))
     self.res_list_var = StringVar(self.res_canvas)
     self.res_list = Listbox(self.res_canvas, font=("MS Gothic", 12),width=50,listvariable=self.res_list_var,height=7)
-    self.res_bac_button = Button(self.res_canvas, text="戻る", font=("MS Gothic", 15), command=lambda: [self.res_canvas.pack_forget(), self.home_canvas.pack(fill="both",expand=True),self.playsound("gui/bgm/opening.wav")])
+    self.res_bac_button = Button(self.res_canvas, text="戻る", font=("MS Gothic", 15), command=lambda: [self.res_canvas.pack_forget(), self.home_canvas.pack(fill="both",expand=True),self.playsound((self.currentdir + "gui/bgm/opening.wav"))])
     self.res_title.pack(pady=20)
     
-    self.playsound("gui/bgm/opening.wav")
+    self.playsound((self.currentdir + "gui/bgm/opening.wav"))
     if len(self.wrong) > 0:
       self.home_wro_button["state"] = 'normal'
     else:
