@@ -158,6 +158,7 @@ class Game():
     
     with open((self.currentdir + "wrong.json"), "w", encoding="utf-8") as f:
         json.dump(self.wrong_wrong, f, ensure_ascii=False, indent=4)
+    self.wrong = self.wrong_wrong
     if len(self.wrong) > 0:
         self.home_wro_button["state"] = 'normal'
     else:
