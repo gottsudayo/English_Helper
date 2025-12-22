@@ -20,9 +20,9 @@
 ## このソフトの注意事項
 このソフトはあくまで個人で作ったフリーソフトです。一部AI生成等ございます。  
 又、以下の内容については事前に承知して頂きたいです。  
-- このソフトは[Github]()にてソースを公開しております。また、同じMarkDownは[GithubのWiki]()にも掲載しております。  
+- このソフトは[Github](https://github.com/gottsudayo/English_Helper)にてソースを公開しております。また、同じMarkDownは[GithubのWiki](https://github.com/gottsudayo/English_Helper/wiki)にも掲載しております。  
 - このソフトで受けたファイル破損、その他苦情等につきまして、製作者は一切の責任を負わないものとします。  
-- 表現等曖昧な部分がありましたら、[製作者のメール](gottsu2023@gmail.com)へご連絡くださいませ。  
+- 表現等曖昧な部分がありましたら、[製作者のメール](mailto:gottsu2023@gmail.com)へご連絡くださいませ。  
 - 付属のファイルがないと正常に動作しません。
 - Pythonの環境がないと動きません。[Pythonの公式ページ](https://python.org)よりダウンロードし、インストールをお願いします。
 - Pythonの標準ライブラリ以外も使用しております。requiresファイルの拡張子に.bat又は.shを付けることにより実行できます。（windowsは.bat、macとlinuxは.shです）
@@ -53,7 +53,7 @@ OSに応じて拡張子をつけて（windowsは.bat、macとlinuxは.sh）
 「間違い直し」を使うことで分からない単語を何度も復習することができます。  
 
 ## おわりに
-何か不明な点等御座いましたら、[製作者のメール](gottsu2023@gmail.com)へご連絡ください。  
+何か不明な点等御座いましたら、[製作者のメール](mailto:gottsu2023@gmail.com)へご連絡ください。  
 又、何度もしつこいですが、[製作者のyoutube](https://www.youtube.com/@gottsudayo)のチャンネル登録をしてくださると幸いです。  
 近頃英語対応するかもしれません。  
 I want to program that this software can display in English.  
