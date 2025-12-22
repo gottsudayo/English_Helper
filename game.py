@@ -1,3 +1,4 @@
+print("システム準備中...")
 import pygame
 from tkinter import *
 from tkinter import messagebox
@@ -5,6 +6,10 @@ import random
 from time import sleep
 import json
 import os
+import sys
+
+# currentdirは必要に応じてスクリプトフォルダの絶対パスに変更してください。
+currentdir = ""
 
 class Game():
   def playsound(self, path):
@@ -22,7 +27,7 @@ class Game():
       self.aqnnum.delete(0, END)
       self.aqncanvas.pack_forget()
       self.home_canvas.pack(fill="both",expand=True)
-      self.playsound((self.currentdir + "gui/bgm/opening.wav"))
+      self.playsound((currentdir + "gui/bgm/opening.wav"))
       return
     syn = False
     if len(self.wrong) > 0:
@@ -30,22 +35,22 @@ class Game():
     else:
         syn = True
     if syn:
-        self.playbgm((self.currentdir + "gui/bgm/bgm.wav"))
+        self.playbgm((currentdir + "gui/bgm/bgm.wav"))
         self.wrong = []
         self.aqncanvas.pack_forget()
         self.aq_canvas.pack()
         collect = 0
-        self.playsound((self.currentdir + "gui/se/question.wav"))
+        self.playsound((currentdir + "gui/se/question.wav"))
         for i in range(question_n):
           if i > 0:
             answer = self.aq_entry.get()
             if self.words[current_key] == answer:
-                self.playsound((self.currentdir + "gui/se/collect.wav"))
+                self.playsound((currentdir + "gui/se/collect.wav"))
                 self.aq_res_label["text"] = "正解！！"
                 self.aq_res_label.update()
                 collect += 1
             else:
-                self.playsound((self.currentdir + "gui/se/wrong.wav"))
+                self.playsound((currentdir + "gui/se/wrong.wav"))
                 self.aq_res_label["text"] = "不正解（正答：" + self.words[current_key] + "）"
                 self.aq_res_label.update()
                 self.wrong.append(self.keys_list[question_index])
@@ -60,10 +65,10 @@ class Game():
             self.stopsound()
             answer = self.aq_entry.get()
             if self.words[current_key] == answer:
-                self.playsound((self.currentdir + "gui/se/collect.wav"))
+                self.playsound((currentdir + "gui/se/collect.wav"))
                 collect += 1
             else:
-                self.playsound((self.currentdir + "gui/se/wrong.wav"))
+                self.playsound((currentdir + "gui/se/wrong.wav"))
                 self.wrong.append(self.keys_list[question_index])
         self.aq_canvas.pack_forget()
         self.res_canvas.pack()
@@ -79,7 +84,7 @@ class Game():
             a += 1
           self.wrong_disp = []
           for i in self.wrong:
-            umeru = 50 - len(i) - round(len(self.words[i]) * 0.8)
+            umeru = 45 - len(i) - len(self.words[i]) * 0.5
             self.wrong_disp.append(i + self.words[i].rjust(umeru))
           self.res_label["text"] = "苦手な単語"
           self.res_label.pack(pady=10)
@@ -99,23 +104,23 @@ class Game():
 
   def wrongm(self):
     self.stopsound()
-    self.playbgm((self.currentdir + "gui/bgm/bgm.wav"))
+    self.playbgm((currentdir + "gui/bgm/bgm.wav"))
     self.home_canvas.pack_forget()
     self.aq_canvas.pack()
     self.wrong_wrong = []
     collect = 0
     question_n = len(self.wrong)
-    self.playsound((self.currentdir + "gui/se/question.wav"))
+    self.playsound((currentdir + "gui/se/question.wav"))
     for i in range(question_n):
       if i > 0:
         answer = self.aq_entry.get()
         if self.words[current_key] == answer:
-            self.playsound((self.currentdir + "gui/se/collect.wav"))
+            self.playsound((currentdir + "gui/se/collect.wav"))
             self.aq_res_label["text"] = "正解！！"
             self.aq_res_label.update()
             collect += 1
         else:
-            self.playsound((self.currentdir + "gui/se/wrong.wav"))
+            self.playsound((currentdir + "gui/se/wrong.wav"))
             self.aq_res_label["text"] = "不正解（正答：" + self.words[current_key] + "）"
             self.aq_res_label.update()
             self.wrong_wrong.append(self.wrong[i])
@@ -128,12 +133,12 @@ class Game():
       if i == question_n - 1:
         answer = self.aq_entry.get()
         if self.words[current_key] == answer:
-            self.playsound((self.currentdir + "gui/se/collect.wav"))
+            self.playsound((currentdir + "gui/se/collect.wav"))
             self.aq_res_label["text"] = "正解！！"
             self.aq_res_label.update()
             collect += 1
         else:
-            self.playsound((self.currentdir + "gui/se/wrong.wav"))
+            self.playsound((currentdir + "gui/se/wrong.wav"))
             self.aq_res_label["text"] = "不正解（正答：" + self.words[current_key] + "）"
             self.aq_res_label.update()
             self.wrong_wrong.append(self.wrong[i])
@@ -146,7 +151,7 @@ class Game():
     if len(self.wrong_wrong) > 0:
       self.wrong_disp = []
       for i in self.wrong_wrong:
-        umeru = 50 - len(i) - len(self.words[i])
+        umeru = 45 - len(i) - (len(self.words[i]) * 0.5)
         self.wrong_disp.append(i + self.words[i].rjust(umeru))
       self.res_label["text"] = "復習不足な単語"
       self.res_label.pack(pady=10)
@@ -156,7 +161,7 @@ class Game():
       self.res_label["text"] = "★復習完了★"
       self.res_label.pack(pady=10)
     
-    with open((self.currentdir + "wrong.json"), "w", encoding="utf-8") as f:
+    with open((currentdir + "wrong.json"), "w", encoding="utf-8") as f:
         json.dump(self.wrong_wrong, f, ensure_ascii=False, indent=4)
     self.wrong = self.wrong_wrong
     if len(self.wrong) > 0:
@@ -166,9 +171,6 @@ class Game():
     self.res_bac_button.pack(pady=10)
     
   def __init__(self):
-    # self.currentdirは必要に応じてスクリプトフォルダの絶対パスに変更してください。
-    self.currentdir = ""
-    print("システム準備中...")
     print("変数初期化中...")
     self.keys_list = []
     self.keys_list_dic = []
@@ -180,7 +182,7 @@ class Game():
 
     print("単語データ読み込み中...")
     try:
-        with open((self.currentdir + "words.json"), "r", encoding="utf-8") as f:
+        with open((currentdir + "words.json"), "r", encoding="utf-8") as f:
             self.words = json.load(f)
     except FileNotFoundError:
         messagebox.showerror("error","words.jsonが見つかりません。プログラムを終了します。")
@@ -195,11 +197,11 @@ class Game():
 
     print("間違い直しデータ読み込み中...")
     try:
-        with open((self.currentdir + "wrong.json"), "r", encoding="utf-8") as f:
+        with open((currentdir + "wrong.json"), "r", encoding="utf-8") as f:
             self.wrong = json.load(f)
     except FileNotFoundError:
         self.wrong = []
-        with open((self.currentdir + "wrong.json"), "w", encoding="utf-8") as f:
+        with open((currentdir + "wrong.json"), "w", encoding="utf-8") as f:
             json.dump(self.wrong, f, ensure_ascii=False, indent=4)
     except json.JSONDecodeError:
         messagebox.showerror("error","wrong.jsonの読み込み中にエラーが発生しました。プログラムを終了します。")
@@ -232,13 +234,13 @@ class Game():
     self.home_ans_button.pack(pady=10)
     self.home_wro_button.pack(pady=10)
     self.home_canvas.pack(fill="both",expand=True)
-    self.home_bg = PhotoImage(file=(self.currentdir + "gui/bg/home_back.png"))
+    self.home_bg = PhotoImage(file=(currentdir + "gui/bg/home_back.png"))
     self.home_canvas.create_image(0,0,image=self.home_bg)
 
     self.dic_canvas = Canvas(self.gui, width=400, height=400)
     self.dic_var = StringVar(self.dic_canvas,value=self.keys_list_dic)
     self.dic_list = Listbox(self.dic_canvas, font=("MS Gothic", 12),width=50,listvariable=self.dic_var)
-    self.dic_clo_button = Button(self.dic_canvas, text="閉じる", font=("MS Gothic", 15), command=lambda: [self.dic_canvas.pack_forget(), self.home_canvas.pack(fill="both",expand=True),self.playsound((self.currentdir + "gui/bgm/opening.wav"))])
+    self.dic_clo_button = Button(self.dic_canvas, text="閉じる", font=("MS Gothic", 15), command=lambda: [self.dic_canvas.pack_forget(), self.home_canvas.pack(fill="both",expand=True),self.playsound((currentdir + "gui/bgm/opening.wav"))])
     self.dic_list.pack(pady=20)
     self.dic_clo_button.pack(pady=10)
 
@@ -248,7 +250,7 @@ class Game():
     self.aqnnum = Entry(self.aqncanvas, font=("MS Gothic", 15))
     self.aqnnum.bind("<KeyPress-Return>", lambda event: self.ansm())
     self.aqnenter = Button(self.aqncanvas, text="開始", font=("MS Gothic", 15),command=self.ansm)
-    self.aqncancel = Button(self.aqncanvas, text="キャンセル", font=("MS Gothic", 15), command=lambda: [self.aqncanvas.pack_forget(), self.home_canvas.pack(fill="both",expand=True),self.playsound((self.currentdir + "gui/bgm/opening.wav"))])
+    self.aqncancel = Button(self.aqncanvas, text="キャンセル", font=("MS Gothic", 15), command=lambda: [self.aqncanvas.pack_forget(), self.home_canvas.pack(fill="both",expand=True),self.playsound((currentdir + "gui/bgm/opening.wav"))])
     self.aqnlabel.pack(pady=20)
     self.aqnnum.pack(pady=10)
     self.aqnenter.pack(pady=10)
@@ -272,10 +274,10 @@ class Game():
     self.res_label = Label(self.res_canvas, text="苦手な単語", font=("MS Gothic", 15))
     self.res_list_var = StringVar(self.res_canvas)
     self.res_list = Listbox(self.res_canvas, font=("MS Gothic", 12),width=50,listvariable=self.res_list_var,height=7)
-    self.res_bac_button = Button(self.res_canvas, text="戻る", font=("MS Gothic", 15), command=lambda: [self.res_canvas.pack_forget(), self.home_canvas.pack(fill="both",expand=True),self.playsound((self.currentdir + "gui/bgm/opening.wav"))])
+    self.res_bac_button = Button(self.res_canvas, text="戻る", font=("MS Gothic", 15), command=lambda: [self.res_canvas.pack_forget(), self.home_canvas.pack(fill="both",expand=True),self.playsound((currentdir + "gui/bgm/opening.wav"))])
     self.res_title.pack(pady=20)
     
-    self.playsound((self.currentdir + "gui/bgm/opening.wav"))
+    self.playsound((currentdir + "gui/bgm/opening.wav"))
     if len(self.wrong) > 0:
       self.home_wro_button["state"] = 'normal'
     else:
@@ -283,6 +285,94 @@ class Game():
     
     self.gui.mainloop()
 
+class Editor():
+  # 単語追加処理
+  def addword_submit(self):
+    jp_word = self.add_jp_entry.get()
+    en_word = self.add_en_entry.get()
+    if jp_word == "" or en_word == "":
+      messagebox.showerror("error","単語が入力されていません。")
+      return
+    if jp_word in self.words:
+      messagebox.showerror("error","その意味は既に存在します。")
+      return
+    self.words[jp_word] = en_word
+    umeru = 50 - len(jp_word) - len(en_word)
+    self.keys_list_dic.append(jp_word + en_word.rjust(umeru))
+    self.main_wordlist_var.set(self.keys_list_dic)
+    self.add_window.destroy()
+  # 単語追加ウィンドウ
+  def addword(self):
+    self.add_window = Toplevel(self.gui)
+    self.add_window.title("単語追加")
+    self.add_window.geometry("300x200")
+    self.add_window.resizable(False, False)
+    self.add_jp_label = Label(self.add_window, text="意味", font=("MS Gothic", 12))
+    self.add_jp_entry = Entry(self.add_window, font=("MS Gothic", 12))
+    self.add_en_label = Label(self.add_window, text="答え", font=("MS Gothic", 12))
+    self.add_en_entry = Entry(self.add_window, font=("MS Gothic", 12))
+    self.add_submit_button = Button(self.add_window, text="追加", font=("MS Gothic", 12), command=self.addword_submit)
+    self.add_cancel_button = Button(self.add_window, text="キャンセル", font=("MS Gothic", 12), command=self.add_window.destroy)
+    self.add_jp_label.pack(pady=5)
+    self.add_jp_entry.pack(pady=5)
+    self.add_en_label.pack(pady=5)
+    self.add_en_entry.pack(pady=5)
+    self.add_submit_button.pack(pady=5)
+    self.add_cancel_button.pack(pady=5)
+  # 単語削除処理
+  def delword(self):
+    selected_indices = self.main_wordlist.curselection()
+    if not selected_indices:
+      messagebox.showerror("error","削除する単語が選択されていません。")
+      return
+    for index in reversed(selected_indices):
+      key_to_delete = self.keys_list[index]
+      del self.words[key_to_delete]
+      del self.keys_list_dic[index]
+    self.main_wordlist_var.set(self.keys_list_dic)
+  # 単語保存処理
+  def saveword(self):
+    with open((currentdir + "words.json"), "w", encoding="utf-8") as f:
+      json.dump(self.words, f, ensure_ascii=False, indent=4)
+    messagebox.showinfo("保存完了","単語データを保存しました。")
+  def __init__(self):
+    print("変数初期化中...")
+    # 変数初期化
+    self.words = {}
+    with open((currentdir + "words.json"), "r", encoding="utf-8") as f:
+      self.words = json.load(f)
+    self.keys_list = list(self.words.keys())
+    self.keys_list_dic = []
+    for i in self.keys_list:
+      umeru = 45 - len(i) - (len(self.words[i]) * 0.5)
+      self.keys_list_dic.append(i + self.words[i].rjust(int(umeru)))
+    
+    # GUI初期化
+    print("設定gui起動中...")
+    # 定義
+    self.gui = Tk()
+    self.gui.title("単語データEditor")
+    self.gui.geometry("400x400")
+    self.gui.resizable(False, False)
+    self.main_wordlist_var = StringVar(self.gui,value=self.keys_list_dic)
+    self.main_wordlist = Listbox(self.gui, font=("MS Gothic", 12),width=50)
+    self.main_add_button = Button(self.gui, text="追加", font=("MS Gothic", 15), command=self.addword)
+    self.main_del_button = Button(self.gui, text="削除", font=("MS Gothic", 15), command=self.delword)
+    self.main_quit_button = Button(self.gui, text="保存", font=("MS Gothic", 15), command=self.saveword)
+    self.main_wordlist.configure(listvariable=self.main_wordlist_var)
+    
+    # ウィジェット配置
+    self.main_wordlist.pack(pady=20)
+    self.main_add_button.pack(pady=5,side=LEFT)
+    self.main_del_button.pack(pady=5,side=LEFT)
+    self.main_quit_button.pack(pady=5,side=RIGHT)
+    
+    # メインループ
+    self.gui.mainloop()
+
 if __name__ == "__main__":
-  Game()
+  if len(sys.argv) > 1 and sys.argv[1] == "edit":
+    Editor()
+  else:
+    Game()
   
