@@ -11,7 +11,54 @@ import sys
 # currentdirは必要に応じてスクリプトフォルダの絶対パスに変更してください。
 currentdir = ""
 
-class Game():
+class Same():
+  def __init__(self):
+    print("変数初期化中...")
+    self.keys_list = []
+    self.keys_list_dic = []
+    self.stopsound = pygame.mixer.stop
+    
+    print("オーディオシステム初期化中...")
+    pygame.init()
+    pygame.mixer.init()
+
+    print("単語データ読み込み中...")
+    try:
+        with open((currentdir + "words.json"), "r", encoding="utf-8") as f:
+            self.words = json.load(f)
+    except FileNotFoundError:
+        messagebox.showerror("error","words.jsonが見つかりません。プログラムを終了します。")
+        exit()
+    except json.JSONDecodeError:
+        messagebox.showerror("error","words.jsonの読み込み中にエラーが発生しました。プログラムを終了します。")
+        exit()
+    except Exception as e:
+        messagebox.showerror("error",f"予期せぬエラーが発生しました: {e}. プログラムを終了します。")
+        exit()
+
+
+    print("間違い直しデータ読み込み中...")
+    try:
+        with open((currentdir + "wrong.json"), "r", encoding="utf-8") as f:
+            self.wrong = json.load(f)
+    except FileNotFoundError:
+        self.wrong = []
+        with open((currentdir + "wrong.json"), "w", encoding="utf-8") as f:
+            json.dump(self.wrong, f, ensure_ascii=False, indent=4)
+    except json.JSONDecodeError:
+        messagebox.showerror("error","wrong.jsonの読み込み中にエラーが発生しました。プログラムを終了します。")
+        exit()
+    except Exception as e:
+        messagebox.showerror("error",f"予期せぬエラーが発生しました: {e}. プログラムを終了します。")
+        exit()
+
+    self.wrong_wrong = []
+    self.keys_list = list(self.words.keys()) # Convert dict_keys to a list once
+    for i in self.keys_list:
+        umeru = 50 - len(i) - len(self.words[i])
+        self.keys_list_dic.append(i + self.words[i].rjust(umeru))
+
+class Game(Same):
   def playsound(self, path):
     pygame.mixer.Sound(path).play()
 
@@ -84,7 +131,7 @@ class Game():
             a += 1
           self.wrong_disp = []
           for i in self.wrong:
-            umeru = 45 - len(i) - len(self.words[i]) * 0.5
+            umeru = round(45 - len(i) - (len(self.words[i]) * 0.5))
             self.wrong_disp.append(i + self.words[i].rjust(umeru))
           self.res_label["text"] = "苦手な単語"
           self.res_label.pack(pady=10)
@@ -94,7 +141,7 @@ class Game():
           self.res_label["text"] = "★間違いなし★"
           self.res_label.pack(pady=10)
 
-        with open("self.wrong.json", "w", encoding="utf-8") as f:
+        with open("wrong.json", "w", encoding="utf-8") as f:
             json.dump(self.wrong, f, ensure_ascii=False, indent=4)
         if len(self.wrong) > 0:
           self.home_wro_button["state"] = 'normal'
@@ -151,7 +198,7 @@ class Game():
     if len(self.wrong_wrong) > 0:
       self.wrong_disp = []
       for i in self.wrong_wrong:
-        umeru = 45 - len(i) - (len(self.words[i]) * 0.5)
+        umeru = round(45 - len(i) - (len(self.words[i]) * 0.5))
         self.wrong_disp.append(i + self.words[i].rjust(umeru))
       self.res_label["text"] = "復習不足な単語"
       self.res_label.pack(pady=10)
@@ -171,55 +218,11 @@ class Game():
     self.res_bac_button.pack(pady=10)
     
   def __init__(self):
-    print("変数初期化中...")
-    self.keys_list = []
-    self.keys_list_dic = []
-    self.stopsound = pygame.mixer.stop
-    
-    print("オーディオシステム初期化中...")
-    pygame.init()
-    pygame.mixer.init()
-
-    print("単語データ読み込み中...")
-    try:
-        with open((currentdir + "words.json"), "r", encoding="utf-8") as f:
-            self.words = json.load(f)
-    except FileNotFoundError:
-        messagebox.showerror("error","words.jsonが見つかりません。プログラムを終了します。")
-        exit()
-    except json.JSONDecodeError:
-        messagebox.showerror("error","words.jsonの読み込み中にエラーが発生しました。プログラムを終了します。")
-        exit()
-    except Exception as e:
-        messagebox.showerror("error",f"予期せぬエラーが発生しました: {e}. プログラムを終了します。")
-        exit()
-
-
-    print("間違い直しデータ読み込み中...")
-    try:
-        with open((currentdir + "wrong.json"), "r", encoding="utf-8") as f:
-            self.wrong = json.load(f)
-    except FileNotFoundError:
-        self.wrong = []
-        with open((currentdir + "wrong.json"), "w", encoding="utf-8") as f:
-            json.dump(self.wrong, f, ensure_ascii=False, indent=4)
-    except json.JSONDecodeError:
-        messagebox.showerror("error","wrong.jsonの読み込み中にエラーが発生しました。プログラムを終了します。")
-        exit()
-    except Exception as e:
-        messagebox.showerror("error",f"予期せぬエラーが発生しました: {e}. プログラムを終了します。")
-        exit()
-
-    self.wrong_wrong = []
-    self.keys_list = list(self.words.keys()) # Convert dict_keys to a list once
-    for i in self.keys_list:
-        umeru = 50 - len(i) - len(self.words[i])
-        self.keys_list_dic.append(i + self.words[i].rjust(umeru))
-    
+    super().__init__()
     print("gui起動中...")
     
     self.gui = Tk()
-    self.gui.title("単語特訓ヘルパー")
+    self.gui.title("単語特訓ヘルパー 1.1.0")
     self.gui.geometry("400x400")
     self.gui.resizable(False, False)
     self.gui.protocol("WM_DELETE_WINDOW", lambda: os._exit(0))
@@ -257,7 +260,7 @@ class Game():
     self.aqncancel.pack(pady=10)
 
     self.aq_canvas = Canvas(self.gui, width=400, height=400)
-    self.aq_label = Label(self.aq_canvas, text="問題文", font=("MS Gothic", 20))
+    self.aq_label = Label(self.aq_canvas, text="問題文", font=("MS Gothic", 20),wraplength=380)
     self.aq_entry = Entry(self.aq_canvas, font=("MS Gothic", 15))
     self.aq_entry.bind("<KeyPress-Return>", lambda event: self.aq_sub_var.set(True))
     self.aq_sub_var = BooleanVar(self.aq_canvas,value=False)
@@ -285,7 +288,7 @@ class Game():
     
     self.gui.mainloop()
 
-class Editor():
+class Editor(Same):
   # 単語追加処理
   def addword_submit(self):
     jp_word = self.add_jp_entry.get()
@@ -301,6 +304,32 @@ class Editor():
     self.keys_list_dic.append(jp_word + en_word.rjust(umeru))
     self.main_wordlist_var.set(self.keys_list_dic)
     self.add_window.destroy()
+  # 単語編集ウィンドウ
+  def editword(self):
+    selected_indices = self.main_wordlist.curselection()
+    if not selected_indices:
+      messagebox.showerror("error","編集する単語が選択されていません。")
+      return
+    index = selected_indices[0]
+    key_to_edit = self.keys_list[index]
+    self.edit_window = Toplevel(self.gui)
+    self.edit_window.title("単語編集")
+    self.edit_window.geometry("300x200")
+    self.edit_window.resizable(False, False)
+    self.edit_jp_label = Label(self.edit_window, text="意味", font=("MS Gothic", 12))
+    self.edit_jp_entry = Entry(self.edit_window, font=("MS Gothic", 12))
+    self.edit_jp_entry.insert(0, key_to_edit)
+    self.edit_en_label = Label(self.edit_window, text="答え", font=("MS Gothic", 12))
+    self.edit_en_entry = Entry(self.edit_window, font=("MS Gothic", 12))
+    self.edit_en_entry.insert(0, self.words[key_to_edit])
+    self.edit_submit_button = Button(self.edit_window, text="保存", font=("MS Gothic", 12), command=lambda: self.editword_submit(index, key_to_edit))
+    self.edit_cancel_button = Button(self.edit_window, text="キャンセル", font=("MS Gothic", 12), command=self.edit_window.destroy)
+    self.edit_jp_label.pack(pady=5)
+    self.edit_jp_entry.pack(pady=5)
+    self.edit_en_label.pack(pady=5)
+    self.edit_en_entry.pack(pady=5)
+    self.edit_submit_button.pack(pady=5)
+    self.edit_cancel_button.pack(pady=5)
   # 単語追加ウィンドウ
   def addword(self):
     self.add_window = Toplevel(self.gui)
@@ -336,17 +365,7 @@ class Editor():
       json.dump(self.words, f, ensure_ascii=False, indent=4)
     messagebox.showinfo("保存完了","単語データを保存しました。")
   def __init__(self):
-    print("変数初期化中...")
-    # 変数初期化
-    self.words = {}
-    with open((currentdir + "words.json"), "r", encoding="utf-8") as f:
-      self.words = json.load(f)
-    self.keys_list = list(self.words.keys())
-    self.keys_list_dic = []
-    for i in self.keys_list:
-      umeru = 45 - len(i) - (len(self.words[i]) * 0.5)
-      self.keys_list_dic.append(i + self.words[i].rjust(int(umeru)))
-    
+    super().__init__()
     # GUI初期化
     print("設定gui起動中...")
     # 定義
@@ -357,6 +376,7 @@ class Editor():
     self.main_wordlist_var = StringVar(self.gui,value=self.keys_list_dic)
     self.main_wordlist = Listbox(self.gui, font=("MS Gothic", 12),width=50)
     self.main_add_button = Button(self.gui, text="追加", font=("MS Gothic", 15), command=self.addword)
+    self.main_edit_button = Button(self.gui, text="編集", font=("MS Gothic", 15),command=self.editword)
     self.main_del_button = Button(self.gui, text="削除", font=("MS Gothic", 15), command=self.delword)
     self.main_quit_button = Button(self.gui, text="保存", font=("MS Gothic", 15), command=self.saveword)
     self.main_wordlist.configure(listvariable=self.main_wordlist_var)
@@ -364,6 +384,7 @@ class Editor():
     # ウィジェット配置
     self.main_wordlist.pack(pady=20)
     self.main_add_button.pack(pady=5,side=LEFT)
+    self.main_edit_button.pack(pady=5,side=LEFT)
     self.main_del_button.pack(pady=5,side=LEFT)
     self.main_quit_button.pack(pady=5,side=RIGHT)
     
