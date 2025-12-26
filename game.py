@@ -11,7 +11,7 @@ import sys
 # currentdirは必要に応じてスクリプトフォルダの絶対パスに変更してください。
 currentdir = ""
 # AI-ModeはTrueで有効、Falseで無効化です。
-# 使用できるAIは(c)Geminiのみです。
+# 使用できるAIはGeminiのみです。
 # Trueに設定した場合はトークン等も設定してください。
 aimode = False
 # Gemini APIトークンを""の中に記述してください。
