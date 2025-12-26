@@ -4,6 +4,7 @@
 1. [はじめに](#はじめに)
 1. [このソフトの注意事項](#このソフトの注意事項)
 1. [プレイの仕方](#プレイの仕方)
+1. [AIモードについて](#AIモードについて)
 1. [words.jsonファイルの編集方法](#words.jsonファイルの編集方法)
 1. [wrong.jsonについて](#wrong.jsonについて)
 1. [おわりに](#おわりに)
@@ -38,6 +39,12 @@
 ### 間違い直し
 wrong.jsonに登録されている単語（前回間違えた単語）をクイズで出してくれます。  
 ※wrong.jsonに登録されていて、words.jsonに登録されていない単語が出てくるとエラーになります。  
+
+## AIモードについて
+まず、使うには"pip install google-genai"を実行して、gemini apiクライアントをインストールします。  
+その後、game.pyの中身でGeminiのAPIトークン等入力（詳しくはプログラムに書いてあります）することにより、  
+解答の判定にGeminiを利用することができます。  
+詳しくは[GeminiAPIクイックスタートガイド by Google](https://ai.google.dev/gemini-api/docs/quickstart?hl=ja)をご覧ください。  
 
 ## words.jsonファイルの編集方法
 words.jsonは自分で編集することもできますが、  

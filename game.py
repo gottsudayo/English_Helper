@@ -10,14 +10,44 @@ import sys
 
 # currentdirは必要に応じてスクリプトフォルダの絶対パスに変更してください。
 currentdir = ""
+# AI-ModeはTrueで有効、Falseで無効化です。
+# 使用できるAIは(c)Geminiのみです。
+# Trueに設定した場合はトークン等も設定してください。
+aimode = False
+# Gemini APIトークンを""の中に記述してください。
+ai_token = ""
+# モデルに関しては、基本的に変更しないでください。一番長く使えるプランで十分です。
+# Gemini 2.0 Flash-Liteは無料枠にて、1分間に30回、1日に1500回使えます。
+# つまり、単純計算で連続50分使用すると制限されます。
+ai_model = "gemini-2.0-flash-lite-preview-02-05"
+# デフォルトのセリフを設定します。基本的にいじらない方がいいです。
+ai_talk_a = "問題「"
+ai_talk_b = "」の答えは「"
+ai_talk_c = "」で合っているか、YesかNoで答えてください。余計な解説は一切要りません。YesかNoだけでいいです。"
 
 class Same():
   def __init__(self):
     print("変数初期化中...")
     self.keys_list = []
     self.keys_list_dic = []
+    self.words = {}
+    self.wrong = []
     self.stopsound = pygame.mixer.stop
+    self.ai = None
     
+    if aimode:
+      print("AIモードが有効になっています。")
+      from google import genai
+      try:
+        self.ai = genai.Client(api_key=ai_token)
+      except Exception as e:
+        print(str(e))
+        messagebox.showerror("error",f"Geminiの呼び出し中にエラーが出ました。\n{e}")
+        exit()
+    else:
+      print("AIモードが無効になっています。")
+        
+      
     print("オーディオシステム初期化中...")
     pygame.init()
     pygame.mixer.init()
@@ -27,14 +57,17 @@ class Same():
         with open((currentdir + "words.json"), "r", encoding="utf-8") as f:
             self.words = json.load(f)
     except FileNotFoundError:
-        messagebox.showerror("error","words.jsonが見つかりません。プログラムを終了します。")
-        exit()
+      print("words.jsonを生成中...")
+      with open((currentdir + "words.json"), "w", encoding="utf-8") as f:
+        json.dump(self.words, f, ensure_ascii=False, indent=4)
+      messagebox.showinfo("info","words.jsonが見つからなかったため、新規作成しました。\n単語データを追加するには、editを実行してください。")
+      exit()
     except json.JSONDecodeError:
-        messagebox.showerror("error","words.jsonの読み込み中にエラーが発生しました。プログラムを終了します。")
-        exit()
+      messagebox.showerror("error","words.jsonの読み込み中にエラーが発生しました。プログラムを終了します。")
+      exit()
     except Exception as e:
-        messagebox.showerror("error",f"予期せぬエラーが発生しました: {e}. プログラムを終了します。")
-        exit()
+      messagebox.showerror("error",f"予期せぬエラーが発生しました: {e}. プログラムを終了します。")
+      exit()
 
 
     print("間違い直しデータ読み込み中...")
@@ -42,7 +75,7 @@ class Same():
         with open((currentdir + "wrong.json"), "r", encoding="utf-8") as f:
             self.wrong = json.load(f)
     except FileNotFoundError:
-        self.wrong = []
+        print("wrong.jsonを生成中...")
         with open((currentdir + "wrong.json"), "w", encoding="utf-8") as f:
             json.dump(self.wrong, f, ensure_ascii=False, indent=4)
     except json.JSONDecodeError:
@@ -91,12 +124,31 @@ class Game(Same):
         for i in range(question_n):
           if i > 0:
             answer = self.aq_entry.get()
-            if self.words[current_key] == answer:
+            if aimode:
+              try:
+                ai_content = ai_talk_a + self.words[current_key] + ai_talk_b + answer + ai_talk_c
+                ai_answer = self.ai.models.generate_content(model=ai_model,contents=ai_content)
+                if ai_answer.text == "Yes":
+                  self.playsound((currentdir + "gui/se/collect.wav"))
+                  self.aq_res_label["text"] = "正解！！"
+                  self.aq_res_label.update()
+                  collect += 1
+                else:
+                  self.playsound((currentdir + "gui/se/wrong.wav"))
+                  self.aq_res_label["text"] = "不正解（正答：" + self.words[current_key] + "）"
+                  self.aq_res_label.update()
+                  self.wrong.append(self.keys_list[question_index])
+              except Exception as e:
+                print(str(e))
+                messagebox.showerror("error",f"Geminiの使用中にエラーが出ました。\n{e}")
+                exit()
+            else:
+              if self.words[current_key] == answer:
                 self.playsound((currentdir + "gui/se/collect.wav"))
                 self.aq_res_label["text"] = "正解！！"
                 self.aq_res_label.update()
                 collect += 1
-            else:
+              else:
                 self.playsound((currentdir + "gui/se/wrong.wav"))
                 self.aq_res_label["text"] = "不正解（正答：" + self.words[current_key] + "）"
                 self.aq_res_label.update()
@@ -111,11 +163,34 @@ class Game(Same):
           if i == question_n - 1:
             self.stopsound()
             answer = self.aq_entry.get()
-            if self.words[current_key] == answer:
-                self.playsound((currentdir + "gui/se/collect.wav"))
-                collect += 1
+            if aimode:
+              try:
+                ai_content = ai_talk_a + self.words[current_key] + ai_talk_b + answer + ai_talk_c
+                ai_answer = self.ai.models.generate_content(model=ai_model,contents=ai_content)
+                if ai_answer.text == "Yes":
+                  self.playsound((currentdir + "gui/se/collect.wav"))
+                  self.aq_res_label["text"] = "正解！！"
+                  self.aq_res_label.update()
+                  collect += 1
+                else:
+                  self.playsound((currentdir + "gui/se/wrong.wav"))
+                  self.aq_res_label["text"] = "不正解（正答：" + self.words[current_key] + "）"
+                  self.aq_res_label.update()
+                  self.wrong.append(self.keys_list[question_index])
+              except Exception as e:
+                print(str(e))
+                messagebox.showerror("error",f"Geminiの使用中にエラーが出ました。\n{e}")
+                exit()
             else:
+              if self.words[current_key] == answer:
+                self.playsound((currentdir + "gui/se/collect.wav"))
+                self.aq_res_label["text"] = "正解！！"
+                self.aq_res_label.update()
+                collect += 1
+              else:
                 self.playsound((currentdir + "gui/se/wrong.wav"))
+                self.aq_res_label["text"] = "不正解（正答：" + self.words[current_key] + "）"
+                self.aq_res_label.update()
                 self.wrong.append(self.keys_list[question_index])
         self.aq_canvas.pack_forget()
         self.res_canvas.pack()
@@ -161,12 +236,31 @@ class Game(Same):
     for i in range(question_n):
       if i > 0:
         answer = self.aq_entry.get()
-        if self.words[current_key] == answer:
+        if aimode:
+          try:
+            ai_content = ai_talk_a + self.words[current_key] + ai_talk_b + answer + ai_talk_c
+            ai_answer = self.ai.generate_content(model=ai_model,contents=ai_content)
+            if ai_answer.text == "Yes":
+              self.playsound((currentdir + "gui/se/collect.wav"))
+              self.aq_res_label["text"] = "正解！！"
+              self.aq_res_label.update()
+              collect += 1
+            else:
+              self.playsound((currentdir + "gui/se/wrong.wav"))
+              self.aq_res_label["text"] = "不正解（正答：" + self.words[current_key] + "）"
+              self.aq_res_label.update()
+              self.wrong_wrong.append(self.wrong[i])
+          except Exception as e:
+            print(str(e))
+            messagebox.showerror("error",f"Geminiの使用中にエラーが出ました。\n{e}")
+            exit()
+        else:    
+          if self.words[current_key] == answer:
             self.playsound((currentdir + "gui/se/collect.wav"))
             self.aq_res_label["text"] = "正解！！"
             self.aq_res_label.update()
             collect += 1
-        else:
+          else:
             self.playsound((currentdir + "gui/se/wrong.wav"))
             self.aq_res_label["text"] = "不正解（正答：" + self.words[current_key] + "）"
             self.aq_res_label.update()
@@ -178,13 +272,33 @@ class Game(Same):
       self.aq_canvas.wait_variable(self.aq_sub_var)
       self.aq_sub_var.set(False)
       if i == question_n - 1:
+        self.stopsound()
         answer = self.aq_entry.get()
-        if self.words[current_key] == answer:
+        if aimode:
+          try:
+            ai_content = ai_talk_a + self.words[current_key] + ai_talk_b + answer + ai_talk_c
+            ai_answer = self.ai.generate_content(model=ai_model,contents=ai_content)
+            if ai_answer.text == "Yes":
+              self.playsound((currentdir + "gui/se/collect.wav"))
+              self.aq_res_label["text"] = "正解！！"
+              self.aq_res_label.update()
+              collect += 1
+            else:
+              self.playsound((currentdir + "gui/se/wrong.wav"))
+              self.aq_res_label["text"] = "不正解（正答：" + self.words[current_key] + "）"
+              self.aq_res_label.update()
+              self.wrong_wrong.append(self.wrong[i])
+          except Exception as e:
+            print(str(e))
+            messagebox.showerror("error",f"Geminiの使用中にエラーが出ました。\n{e}")
+            exit()
+        else:    
+          if self.words[current_key] == answer:
             self.playsound((currentdir + "gui/se/collect.wav"))
             self.aq_res_label["text"] = "正解！！"
             self.aq_res_label.update()
             collect += 1
-        else:
+          else:
             self.playsound((currentdir + "gui/se/wrong.wav"))
             self.aq_res_label["text"] = "不正解（正答：" + self.words[current_key] + "）"
             self.aq_res_label.update()
