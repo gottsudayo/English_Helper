@@ -249,7 +249,7 @@ class Game(Same):
               self.playsound((currentdir + "gui/se/wrong.wav"))
               self.aq_res_label["text"] = "不正解（正答：" + self.words[current_key] + "）"
               self.aq_res_label.update()
-              self.wrong_wrong.append(self.wrong[i])
+              self.wrong_wrong.append(self.wrong[i - 1])
           except Exception as e:
             print(str(e))
             messagebox.showerror("error",f"Geminiの使用中にエラーが出ました。\n{e}")
@@ -264,7 +264,7 @@ class Game(Same):
             self.playsound((currentdir + "gui/se/wrong.wav"))
             self.aq_res_label["text"] = "不正解（正答：" + self.words[current_key] + "）"
             self.aq_res_label.update()
-            self.wrong_wrong.append(self.wrong[i])
+            self.wrong_wrong.append(self.wrong[i - 1])
       self.aq_entry.delete(0, END)
       current_key = self.wrong[i] # Get the key using the random index
       self.aq_label["text"] = current_key + "  （" + str(question_n - i) + "）" # Print the Japanese word (key)
